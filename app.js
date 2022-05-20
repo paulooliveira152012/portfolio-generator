@@ -1,38 +1,91 @@
-
-// /*
-//  (DELETED) - Create a variable that should NOT have its value reasigned --> const profileDataArg
-//  (DELETED)- Equal this variable to "process.argv" --> This property returns an array containing the command-line arguments passed when the Node.js process was launched.
-//     * Process is a global object that represents everything in a particular app. Like "document" or "window" in the browser
-//     * argv (a property of process) --> an ARRAY that holds exactly what was typed in the command line
-//     * .slice(2) --> returns a new array based on process.argv astarting a the THIRD index (2)
-//     * process.argv.length --> iteration as per the process.argv
-//  */
-
-const inquirer = require('inquirer') 
-inquirer
-  .prompt([
+//user info
+const inquirer = require('inquirer');
+const promptUser = () => {
+  return inquirer.prompt([
     {
       type: 'input',
       name: 'name',
       message: 'What is your name?'
+    },
+    {
+      type: 'input',
+      name: 'github',
+      message: 'Enter your GitHub Username'
+    },
+    {
+      type: 'confirm',
+      name: 'confirmAbout',
+      message: 'Would you like to enter some information about yourself for an "About" section?',
+      default: true
+    },
+    {
+      type: 'input',
+      name: 'about',
+      message: 'Provide some information about yourself:'
+    }
+  ]);
+};
+
+//project
+const promptProject = portfolioData => {
+  console.log(`
+=================
+Add a New Project
+=================
+`);
+
+  // If there's no 'projects' array property, create one
+  if (!portfolioData.projects) {
+    portfolioData.projects = [];
+  }
+  return inquirer
+  .prompt([
+    {
+      type: 'input',
+      name: 'name',
+      message: 'What is the name of your project?'
+    },
+    {
+      type: 'input',
+      name: 'description',
+      message: 'Provide a description of the project (Required)'
+    },
+    {
+      type: 'checkbox',
+      name: 'languages',
+      message: 'What did you build this project with? (Check all that apply)',
+      choices: ['JavaScript', 'HTML', 'CSS', 'ES6', 'jQuery', 'Bootstrap', 'Node']
+    },
+    {
+      type: 'input',
+      name: 'link',
+      message: 'Enter the GitHub link to your project. (Required)'
+    },
+    {
+      type: 'confirm',
+      name: 'feature',
+      message: 'Would you like to feature this project?',
+      default: false
+    },
+    {
+      type: 'confirm',
+      name: 'confirmAddProject',
+      message: 'Would you like to enter another project?',
+      default: false
     }
   ])
+  .then(projectData => {
+    portfolioData.projects.push(projectData);
+    if (projectData.confirmAddProject) {
+      return promptProject(portfolioData);
+    } else {
+      return portfolioData;
+    }
+  });
+};
 
-// //CONST FS will open path to the body of content for packages
-// const fs = require('fs');
-// //inporting from the page-template.js the html frame
-// const generatePage = require('./src/page-template.js');
-
-// const pageHTML = generatePage(name, github);
-// /*
-// - accessint the file system
-// - using the writeFile functionality
-// - 3 arguments inside: 1- name of the file, 2- the data that's beeing written, 3- callback for errors
-//  */
-// fs.writeFile('./index.html', pageHTML, err => {
-//   if (err) throw err;
-
-//   console.log('Portfolio complete! Check out index.html to see the output');
-// });
-
-
+promptUser()
+  .then(promptProject)
+  .then(portfolioData => {
+    console.log(portfolioData);
+  });
